@@ -1,4 +1,4 @@
-package me.jetp250.wands.utilities.config;
+package me.jetp250.wands.utilities.configuration;
 
 import java.util.Random;
 

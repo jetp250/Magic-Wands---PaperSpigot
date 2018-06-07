@@ -7,11 +7,10 @@ import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
 
-import me.jetp250.wands.utilities.config.RangedFloat;
+import me.jetp250.wands.utilities.configuration.RangedFloat;
 import net.minecraft.server.v1_12_R1.Block;
 import net.minecraft.server.v1_12_R1.EnumParticle;
 import net.minecraft.server.v1_12_R1.Item;
-import net.minecraft.server.v1_12_R1.Packet;
 import net.minecraft.server.v1_12_R1.PacketPlayOutWorldParticles;
 
 public class ParticleContainer {
@@ -44,9 +43,9 @@ public class ParticleContainer {
 		this.amount = section.getInt("Amount", 5);
 		if (section.isSet("Color") && section.isConfigurationSection("Color")) {
 			ConfigurationSection color = section.getConfigurationSection("Color");
-			this.xOffset = getColor(color, "Red");
-			this.yOffset = getColor(color, "Green");
-			this.zOffset = getColor(color, "Blue");
+			this.xOffset = getColorProperty(color, "Red");
+			this.yOffset = getColorProperty(color, "Green");
+			this.zOffset = getColorProperty(color, "Blue");
 			this.speed = new RangedFloat(1);
 			this.colored = true;
 		} else {
@@ -58,17 +57,16 @@ public class ParticleContainer {
 		this.data = parseData(section.getString("Data"), this.type);
 	}
 
-	public void constructPackets(Random random, float x, float y, float z, List<Packet<?>> target) {
+	public void constructPackets(Random random, float x, float y, float z, List<PacketPlayOutWorldParticles> target) {
 		float xOff = xOffset.getRandomValue(random);
 		float yOff = yOffset.getRandomValue(random);
 		float zOff = zOffset.getRandomValue(random);
 		if (!colored) {
 			float speed = this.speed.getRandomValue(random);
-			Packet<?> packet = new PacketPlayOutWorldParticles(type, true, x, y, z, xOff, yOff, zOff, speed, amount, data);
-			target.add(packet);
+			target.add(new PacketPlayOutWorldParticles(type, true, x, y, z, xOff, yOff, zOff, speed, amount, data));
 			return;
 		}
-		Packet<?> packet = new PacketPlayOutWorldParticles(type, true, x, y, z, xOff, yOff, zOff, 1f, 0, data);
+		PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(type, true, x, y, z, xOff, yOff, zOff, 1f, 0, data);
 		for (int i = 0; i < amount; ++i) {
 			target.add(packet);
 		}
@@ -83,16 +81,12 @@ public class ParticleContainer {
 		for (String sectionName : keys) {
 			if (!section.isConfigurationSection(sectionName))
 				continue;
-			list.add(create(section.getConfigurationSection(sectionName)));
+			list.add(new ParticleContainer(section.getConfigurationSection(sectionName)));
 		}
 		if (list.isEmpty()) {
-			return new ParticleContainer[] { create(section) };
+			return new ParticleContainer[] { new ParticleContainer(section) };
 		}
 		return list.toArray(new ParticleContainer[list.size()]);
-	}
-
-	private static ParticleContainer create(ConfigurationSection section) {
-		return new ParticleContainer(section);
 	}
 
 	private static EnumParticle getType(String name) {
@@ -100,7 +94,7 @@ public class ParticleContainer {
 		return type != null ? type : ParticleContainer.DEFAULT_PARTICLE;
 	}
 
-	private static RangedFloat getColor(ConfigurationSection section, String name) {
+	private static RangedFloat getColorProperty(ConfigurationSection section, String name) {
 		double val = section.getDouble(name, 0D);
 		if (val <= 0.0001D)
 			return new RangedFloat(Float.MIN_NORMAL);
@@ -125,7 +119,7 @@ public class ParticleContainer {
 	}
 
 	private static int getId(String name, EnumParticle type) {
-		if (type.d() == 0) { // argument count
+		if (type.d() == 0) { // required argument count
 			return -1;
 		}
 		if (type == EnumParticle.ITEM_CRACK) {

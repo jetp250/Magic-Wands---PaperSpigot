@@ -3,7 +3,7 @@ package me.jetp250.wands.events;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
-import me.jetp250.wands.projectiles.ProjectileBase;
+import me.jetp250.wands.projectiles.MagicMissile;
 
 public class MagicMissileSpawnEvent extends MagicMissileEvent implements Cancellable {
 
@@ -11,7 +11,7 @@ public class MagicMissileSpawnEvent extends MagicMissileEvent implements Cancell
 
 	private boolean cancelled;
 
-	public MagicMissileSpawnEvent(ProjectileBase projectile) {
+	public MagicMissileSpawnEvent(MagicMissile projectile) {
 		super(projectile);
 	}
 

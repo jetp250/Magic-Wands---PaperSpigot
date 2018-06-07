@@ -5,8 +5,8 @@ import java.util.Map;
 import org.bukkit.configuration.ConfigurationSection;
 
 import me.jetp250.wands.projectiles.HomingProjectile;
-import me.jetp250.wands.projectiles.ProjectileBase;
-import me.jetp250.wands.utilities.config.RangedFloat;
+import me.jetp250.wands.projectiles.MagicMissile;
+import me.jetp250.wands.utilities.configuration.RangedFloat;
 import me.jetp250.wands.wands.Wand;
 import net.minecraft.server.v1_12_R1.EntityLiving;
 
@@ -56,7 +56,7 @@ public class HomingProjectileData extends ProjectileData {
 	}
 
 	@Override
-	public ProjectileBase createProjectile(Wand wand, EntityLiving shooter) {
+	public MagicMissile createProjectile(Wand wand, EntityLiving shooter) {
 		return new HomingProjectile(this, wand, shooter);
 	}
 

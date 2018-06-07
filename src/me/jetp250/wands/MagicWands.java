@@ -7,7 +7,7 @@ import me.jetp250.wands.commands.WandCommandExecutor;
 import me.jetp250.wands.listener.PlayerEventListener;
 import me.jetp250.wands.projectiles.ProjectileManager;
 import me.jetp250.wands.projectiles.data.ProjectileDataCache;
-import me.jetp250.wands.utilities.config.Configuration;
+import me.jetp250.wands.utilities.configuration.Configuration;
 import me.jetp250.wands.wands.WandStorage;
 import net.minecraft.server.v1_12_R1.Item;
 import net.minecraft.server.v1_12_R1.Items;

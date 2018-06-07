@@ -1,6 +1,7 @@
 package me.jetp250.wands.projectiles;
 
 import java.util.List;
+import java.util.Random;
 
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_12_R1.CraftChunk;
@@ -25,7 +26,7 @@ import net.minecraft.server.v1_12_R1.MovingObjectPosition.EnumMovingObjectType;
 import net.minecraft.server.v1_12_R1.Vec3D;
 import net.minecraft.server.v1_12_R1.WorldServer;
 
-public abstract class ProjectileBase {
+public class MagicMissile {
 
 	protected static final Predicate<Entity> ENTITY_PREDICATE = e -> e instanceof EntityLiving;
 
@@ -34,6 +35,7 @@ public abstract class ProjectileBase {
 	protected Vec3f velocity;
 
 	protected final ProjectileData data;
+	protected final Random random;
 
 	private final float maxRangeSquared;
 	private float distanceTraveled;
@@ -43,16 +45,18 @@ public abstract class ProjectileBase {
 	protected final Wand wand;
 
 	private float damage;
-	protected int ticksLived;
-	protected boolean dead;
+	private boolean dead;
 
-	public ProjectileBase(ProjectileData data, Wand wand, EntityLiving shooter) {
+	protected int ticksLived;
+
+	public MagicMissile(ProjectileData data, Wand wand, EntityLiving shooter) {
 		this.shooter = shooter;
 		this.data = data;
 		this.world = (WorldServer) shooter.world;
 		this.wand = wand;
-		this.damage = data.getDamage().getRandomValue(world.random);
-		this.maxRangeSquared = data.getRange().getRandomValue(world.random);
+		this.random = world.random;
+		this.damage = data.getDamage().getRandomValue(random);
+		this.maxRangeSquared = data.getRange().getRandomValue(random);
 		this.lastPos = new Vec3f();
 		this.pos = new Vec3f();
 		this.velocity = new Vec3f();
@@ -100,6 +104,11 @@ public abstract class ProjectileBase {
 			return;
 		}
 		checkCollisions();
+		playParticles();
+	}
+
+	protected void playParticles() {
+		data.displayParticles(this);
 	}
 
 	public void die() {
@@ -119,6 +128,11 @@ public abstract class ProjectileBase {
 	}
 
 	protected void onSpawn() {
+		float speed = data.getSpeed().getRandomValue(random);
+		float yaw = shooter.yaw + data.getYawOffset().getRandomValue(random);
+		float pitch = shooter.pitch;
+		this.velocity = Vec3f.fromYawPitch(yaw, pitch).mult(speed);
+		this.pos = new Vec3f(shooter).add(velocity);
 	}
 
 	protected void onCollision(MovingObjectPosition collision) {
@@ -157,19 +171,7 @@ public abstract class ProjectileBase {
 	protected final void checkCollisions() {
 		MovingObjectPosition result = rayTrace();
 		if (result != null && result.type == EnumMovingObjectType.BLOCK) {
-			IBlockData data = world.getType(result.a());
-			if (data.getMaterial().isSolid()) {
-				Vec3D pos = result.pos;
-				this.pos.set((float) pos.x, (float) pos.y, (float) pos.z);
-				int x = FloatMath.floor(this.pos.x);
-				int y = FloatMath.floor(this.pos.y);
-				int z = FloatMath.floor(this.pos.z);
-				CraftChunk chunk = (CraftChunk) world.getChunkAt(x >> 4, z >> 4).bukkitChunk;
-				CraftBlock block = new CraftBlock(chunk, x, y, z);
-				if (new MagicMissileHitEvent(this, block).callEvent()) {
-					onCollision(result);
-				}
-			}
+			checkBlockCollision(result);
 			return;
 		}
 		EntityLiving colliding = getCollidingEntity();
@@ -180,6 +182,22 @@ public abstract class ProjectileBase {
 		}
 		MovingObjectPosition pos = new MovingObjectPosition(colliding);
 		onCollision(pos);
+	}
+
+	private void checkBlockCollision(MovingObjectPosition rayTrace) {
+		IBlockData data = world.getType(rayTrace.a());
+		if (data.getMaterial().isSolid()) {
+			Vec3D pos = rayTrace.pos;
+			this.pos.set((float) pos.x, (float) pos.y, (float) pos.z);
+			int x = FloatMath.floor(this.pos.x);
+			int y = FloatMath.floor(this.pos.y);
+			int z = FloatMath.floor(this.pos.z);
+			CraftChunk chunk = (CraftChunk) world.getChunkAt(x >> 4, z >> 4).bukkitChunk;
+			CraftBlock block = new CraftBlock(chunk, x, y, z);
+			if (new MagicMissileHitEvent(this, block).callEvent()) {
+				onCollision(rayTrace);
+			}
+		}
 	}
 
 	protected EntityLiving getCollidingEntity() {

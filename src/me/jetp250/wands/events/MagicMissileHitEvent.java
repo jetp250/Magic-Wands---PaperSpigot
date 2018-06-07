@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
-import me.jetp250.wands.projectiles.ProjectileBase;
+import me.jetp250.wands.projectiles.MagicMissile;
 
 public class MagicMissileHitEvent extends MagicMissileEvent implements Cancellable {
 
@@ -18,12 +18,12 @@ public class MagicMissileHitEvent extends MagicMissileEvent implements Cancellab
 
 	private boolean cancelled;
 
-	public MagicMissileHitEvent(ProjectileBase projectile, LivingEntity entity) {
+	public MagicMissileHitEvent(MagicMissile projectile, LivingEntity entity) {
 		super(projectile);
 		this.entity = entity;
 	}
 
-	public MagicMissileHitEvent(ProjectileBase projectile, Block block) {
+	public MagicMissileHitEvent(MagicMissile projectile, Block block) {
 		super(projectile);
 		this.block = block;
 	}

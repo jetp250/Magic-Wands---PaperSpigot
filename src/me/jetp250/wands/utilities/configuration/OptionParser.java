@@ -1,10 +1,13 @@
-package me.jetp250.wands.utilities.config;
+package me.jetp250.wands.utilities.configuration;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class OptionParser {
+public final class OptionParser {
+
+	private OptionParser() {
+	}
 
 	private static final Pattern INT_PATTERN = Pattern.compile("-?\\d+");
 	private static final Pattern FLOAT_PATTERN = Pattern.compile("-?\\d+.\\d+");

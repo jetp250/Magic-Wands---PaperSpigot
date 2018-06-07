@@ -10,11 +10,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
 
-import me.jetp250.wands.projectiles.ParticleProjectile;
-import me.jetp250.wands.projectiles.ProjectileBase;
+import me.jetp250.wands.projectiles.MagicMissile;
 import me.jetp250.wands.projectiles.data.particles.ParticleContainer;
-import me.jetp250.wands.utilities.config.RangedFloat;
-import me.jetp250.wands.utilities.config.RangedInt;
+import me.jetp250.wands.utilities.configuration.RangedFloat;
+import me.jetp250.wands.utilities.configuration.RangedInt;
 import me.jetp250.wands.utilities.math.Vec3f;
 import me.jetp250.wands.wands.Wand;
 import net.minecraft.server.v1_12_R1.Entity;
@@ -22,6 +21,7 @@ import net.minecraft.server.v1_12_R1.EntityHuman;
 import net.minecraft.server.v1_12_R1.EntityLiving;
 import net.minecraft.server.v1_12_R1.EntityPlayer;
 import net.minecraft.server.v1_12_R1.Packet;
+import net.minecraft.server.v1_12_R1.PacketPlayOutWorldParticles;
 import net.minecraft.server.v1_12_R1.PlayerConnection;
 import net.minecraft.server.v1_12_R1.World;
 
@@ -110,14 +110,14 @@ public class ProjectileData {
 		return this.range;
 	}
 
-	public ProjectileBase createProjectile(Wand wand, EntityLiving shooter) {
-		return new ParticleProjectile(this, wand, shooter);
+	public MagicMissile createProjectile(Wand wand, EntityLiving shooter) {
+		return new MagicMissile(this, wand, shooter);
 	}
 
-	public void displayParticles(ProjectileBase projectile) {
+	public void displayParticles(MagicMissile projectile) {
 		Vec3f pos = projectile.getPosition();
 		Random random = ThreadLocalRandom.current();
-		List<Packet<?>> packets = new ArrayList<>();
+		List<PacketPlayOutWorldParticles> packets = new ArrayList<>();
 		for (ParticleContainer container : this.particles) {
 			container.constructPackets(random, pos.x, pos.y, pos.z, packets);
 		}
@@ -137,6 +137,9 @@ public class ProjectileData {
 		return new ProjectileData(this);
 	}
 
+	// TODO remake this from ground up so that these methods are not even needed
+
+	///////
 	protected void loadSettings(Map<String, Object> settings) {
 		Object angleOffset = settings.get("angle");
 		if (angleOffset != null) {
@@ -200,18 +203,19 @@ public class ProjectileData {
 		return data;
 	}
 
-	private static double distanceSquared(Entity entity, Vec3f pos) {
-		double x = entity.locX - pos.x;
-		double y = entity.locY - pos.y;
-		double z = entity.locZ - pos.z;
-		return x * x + y * y + z * z;
-	}
-
 	public static ProjectileData fromSection(ConfigurationSection section) {
 		if (section.getBoolean("Homing")) {
 			return new HomingProjectileData(section);
 		}
 		return new ProjectileData(section);
+	}
+	////////
+
+	private static double distanceSquared(Entity entity, Vec3f pos) {
+		double x = entity.locX - pos.x;
+		double y = entity.locY - pos.y;
+		double z = entity.locZ - pos.z;
+		return x * x + y * y + z * z;
 	}
 
 }

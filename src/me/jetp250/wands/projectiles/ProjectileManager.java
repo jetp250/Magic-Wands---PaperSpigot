@@ -1,6 +1,7 @@
 package me.jetp250.wands.projectiles;
 
-import java.util.HashSet;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
@@ -10,11 +11,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import com.google.common.collect.Sets;
+
 import me.jetp250.wands.events.MagicMissileRemoveEvent;
 import me.jetp250.wands.events.MagicMissileSpawnEvent;
 import net.minecraft.server.v1_12_R1.MinecraftServer;
 
-public final class ProjectileManager implements Runnable {
+public final class ProjectileManager {
 
 	private static ProjectileManager instance;
 
@@ -25,16 +28,16 @@ public final class ProjectileManager implements Runnable {
 		return instance;
 	}
 
-	private final Set<ProjectileBase> projectiles;
-	private final Set<QueuedProjectile> queued;
+	private final Set<MagicMissile> projectiles;
+	private final Deque<QueuedProjectile> queued;
 	private BukkitTask task;
 
 	public ProjectileManager() {
-		this.projectiles = new HashSet<>();
-		this.queued = new HashSet<>();
+		this.projectiles = Sets.newIdentityHashSet();
+		this.queued = new ArrayDeque<>();
 	}
 
-	public boolean addProjectile(ProjectileBase projectile) {
+	public boolean addProjectile(MagicMissile projectile) {
 		if (projectile.data.getSpawnDelay().getUpperBound() > 0) {
 			this.queued.add(new QueuedProjectile(projectile));
 			return true;
@@ -42,7 +45,7 @@ public final class ProjectileManager implements Runnable {
 		return internalAddProjectile(projectile);
 	}
 
-	private boolean internalAddProjectile(ProjectileBase projectile) {
+	private boolean internalAddProjectile(MagicMissile projectile) {
 		projectile.onSpawn();
 		if (new MagicMissileSpawnEvent(projectile).callEvent()) {
 			projectiles.add(projectile);
@@ -51,14 +54,13 @@ public final class ProjectileManager implements Runnable {
 		return false;
 	}
 
-	@Override
-	public void run() {
+	private void update() {
 		if (!queued.isEmpty()) {
 			updateQueue();
 		}
-		Iterator<ProjectileBase> iterator = projectiles.iterator();
+		Iterator<MagicMissile> iterator = projectiles.iterator();
 		while (iterator.hasNext()) {
-			ProjectileBase proj = iterator.next();
+			MagicMissile proj = iterator.next();
 			try {
 				proj.tick();
 			} catch (Exception ex) {
@@ -87,7 +89,7 @@ public final class ProjectileManager implements Runnable {
 
 	public void start(Plugin plugin) {
 		stop();
-		this.task = Bukkit.getScheduler().runTaskTimer(plugin, this, 0L, 0L);
+		this.task = Bukkit.getScheduler().runTaskTimer(plugin, this::update, 0L, 0L);
 	}
 
 	public void stop() {
@@ -101,12 +103,12 @@ public final class ProjectileManager implements Runnable {
 		projectiles.clear();
 	}
 
-	private static class QueuedProjectile {
+	static final class QueuedProjectile {
 
-		final ProjectileBase projectile;
+		final MagicMissile projectile;
 		final int scheduledTick;
 
-		public QueuedProjectile(ProjectileBase projectile) {
+		public QueuedProjectile(MagicMissile projectile) {
 			this.projectile = projectile;
 			Random random = ThreadLocalRandom.current();
 			int delay = projectile.data.getSpawnDelay().getRandomValue(random);

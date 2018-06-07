@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.configuration.ConfigurationSection;
 
-import me.jetp250.wands.utilities.config.OptionParser;
+import me.jetp250.wands.utilities.configuration.OptionParser;
 
 public final class ProjectileDataCache {
 

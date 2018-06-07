@@ -1,8 +1,6 @@
 package me.jetp250.wands.projectiles;
 
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 import me.jetp250.wands.projectiles.data.HomingProjectileData;
 import me.jetp250.wands.utilities.math.FloatMath;
@@ -15,7 +13,7 @@ import net.minecraft.server.v1_12_R1.MovingObjectPosition;
 import net.minecraft.server.v1_12_R1.MovingObjectPosition.EnumMovingObjectType;
 import net.minecraft.server.v1_12_R1.Vec3D;
 
-public class HomingProjectile extends ParticleProjectile {
+public class HomingProjectile extends MagicMissile {
 
 	private EntityLiving target;
 	private final float speed;
@@ -27,7 +25,6 @@ public class HomingProjectile extends ParticleProjectile {
 
 	public HomingProjectile(HomingProjectileData data, Wand wand, EntityLiving shooter) {
 		super(data, wand, shooter);
-		Random random = ThreadLocalRandom.current();
 		this.speed = data.getSpeed().getRandomValue(random);
 		this.turnRate = data.getTurnRate().getRandomValue(random);
 		this.forceHit = data.getForceHit();
@@ -93,7 +90,6 @@ public class HomingProjectile extends ParticleProjectile {
 
 	@Override
 	protected void onSpawn() {
-		Random random = ThreadLocalRandom.current();
 		float yaw = shooter.yaw + data.getYawOffset().getRandomValue(random);
 		float pitch = shooter.pitch;
 		this.velocity = Vec3f.fromYawPitch(yaw, pitch).mult(speed);

@@ -5,19 +5,19 @@ import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 
-import me.jetp250.wands.projectiles.ProjectileBase;
+import me.jetp250.wands.projectiles.MagicMissile;
 import me.jetp250.wands.utilities.math.Vec3f;
 import me.jetp250.wands.wands.Wand;
 
 public abstract class MagicMissileEvent extends Event {
 
-	private final ProjectileBase projectile;
+	private final MagicMissile projectile;
 
-	public MagicMissileEvent(ProjectileBase projectile) {
+	public MagicMissileEvent(MagicMissile projectile) {
 		this.projectile = projectile;
 	}
 
-	public ProjectileBase getProjectile() {
+	public MagicMissile getProjectile() {
 		return this.projectile;
 	}
 

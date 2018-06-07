@@ -233,33 +233,6 @@ public class Vec3f {
 		return this;
 	}
 
-	public float getYaw() {
-		return FloatMath.atan2(x, z);
-	}
-
-	public Vec3f setYaw(float yaw) {
-		float radians = FloatMath.toRadians(yaw);
-		float length = FloatMath.sqrt(x * x + z * z);
-		this.x = FloatMath.sin(radians) * length;
-		this.z = FloatMath.cos(radians) * length;
-		return this;
-	}
-
-	public float getPitch() {
-		return FloatMath.atan2(y, FloatMath.sqrt(x * x + z * z));
-	}
-
-	public Vec3f setPitch(float degrees) {
-		float pitch = FloatMath.toRadians(degrees);
-		float yaw = getYaw();
-		float length = this.length();
-		this.y = -FloatMath.sin(pitch) * length;
-		float xz = FloatMath.cos(pitch) * length;
-		this.x = -xz * FloatMath.sin(yaw);
-		this.z = xz * FloatMath.cos(yaw);
-		return this;
-	}
-
 	/**
 	 * In radians!
 	 */

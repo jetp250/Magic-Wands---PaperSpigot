@@ -23,10 +23,6 @@ public final class FloatMath {
 	private FloatMath() {
 	}
 
-	public static float atan2(float y, float x) {
-		return Atan2Table.atan2(y, x);
-	}
-
 	public static float clamp(float value, float min, float max) {
 		return value < min ? min : value > max ? max : value;
 	}
@@ -211,46 +207,6 @@ public final class FloatMath {
 		return FloatMath.SIN[(index + 16) & 63] * (1 - dt2) - FloatMath.SIN[index] * (dt - (dt2 * dt * (1F / 3F)));
 	}
 
-	public static float _cos(float n) {
-		float x = n * 32 / PI;
-		int index = (int) x;
-		float dt = n - index * PI / 32f;
-		float dt2 = dt * dt / 2f;
-		float dt3 = dt2 * dt / 3f;
-		index &= 63;
-		int index2 = (index + 16) & 63;
-		float s = SIN[index];
-		float c = SIN[index2];
-		return c * (1 - dt2) - s * (dt - dt3);
-	}
-
-	public static float _sin(float n) {
-		float x = n * 32 / PI;
-		int index = (int) (x);
-		float dt = n - index * PI / 32f;
-		float dt2 = dt * dt / 2f;
-		float dt3 = dt2 * dt / 3F;
-		index &= 63;
-		int index2 = (index + 16) & 63;
-		float s = SIN[index];
-		float c = SIN[index2];
-		return s * (1 - dt2) + c * (dt - dt3);
-	}
-
-	public static void main(String[] args) {
-		System.out.println(-10 >> 1);
-		//		long accuracy = Integer.MAX_VALUE;
-		//		double val = 1;
-		//		for (long i = 2; i < accuracy; ++i) {
-		//			val *= (double) (i >> 1 << 1)/(((i-1) >> 1 << 1) + 1);
-		//		}
-		//		val *= 2;
-		//		System.out.printf("Result: %.15f%n", val);
-		//		double expected = Math.PI;
-		//		double error = Math.abs(val - expected);
-		//		System.out.printf("Error: %.15f%n", error);
-	}
-
 	public static float sqr(float f) {
 		return f * f;
 	}
@@ -266,20 +222,10 @@ public final class FloatMath {
 		return f * y;
 	}
 
-	/**
-	 * Multiplies the number with <code>57.295779513082320876798154814105</code>
-	 *
-	 * @param radians
-	 *            - radians to be converted into degrees
-	 */
 	public static float toDegrees(float radians) {
 		return radians * 180f / PI;
 	}
 
-	/**
-	 * @param degrees
-	 *            - degrees to be converted into radians
-	 */
 	public static float toRadians(float degrees) {
 		return degrees * PI / 180f;
 	}
